@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Professional Terminal - Complete OTC Suite</title>
+    <title>Arsii-74 Professional Terminal - Full Timeframe Suite</title>
     <style>
         :root {
             --bg-color: #0b0e11;
@@ -60,7 +60,7 @@
             color: #fff;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
         }
 
@@ -156,7 +156,7 @@
             <h1>Arsii-74 Professional Terminal</h1>
         </header>
 
-        <!-- Controls with All Standard & OTC Pairs -->
+        <!-- Controls: All Pairs & Precise Timeframes -->
         <div class="control-panel">
             <div class="control-group">
                 <label for="pair-select">Asset / Pair Selection</label>
@@ -195,15 +195,23 @@
                 </select>
             </div>
             <div class="control-group">
-                <label for="timeframe-select">Timeframe</label>
+                <label for="timeframe-select">Timeframe (3s to 1hr)</label>
                 <select id="timeframe-select">
-                    <option value="3">3 Seconds</option>
-                    <option value="5" selected>5 Seconds</option>
-                    <option value="10">10 Seconds</option>
-                    <option value="15">15 Seconds</option>
-                    <option value="30">30 Seconds</option>
-                    <option value="60">1 Minute</option>
-                    <option value="300">5 Minutes</option>
+                    <optgroup label="Short Seconds">
+                        <option value="3">3 Seconds</option>
+                        <option value="5" selected>5 Seconds</option>
+                        <option value="10">10 Seconds</option>
+                        <option value="15">15 Seconds</option>
+                        <option value="30">30 Seconds</option>
+                        <option value="45">45 Seconds</option>
+                    </optgroup>
+                    <optgroup label="Minutes & Hours">
+                        <option value="60">1 Minute</option>
+                        <option value="300">5 Minutes</option>
+                        <option value="900">15 Minutes</option>
+                        <option value="1800">30 Minutes</option>
+                        <option value="3600">1 Hour</option>
+                    </optgroup>
                 </select>
             </div>
         </div>
@@ -310,7 +318,7 @@
         setInterval(() => {
             currentTimeLeft--;
 
-            // Highlight the final 4-to-1 sequence clearly
+            // Highlight the final urgent countdown sequence when 4 seconds or less remain
             if (currentTimeLeft <= 4 && currentTimeLeft > 0) {
                 countdownTitle.textContent = "Execution Window (Entry Countdown)";
                 countdownVal.classList.add('urgent');
