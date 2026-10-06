@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Signal Scanner Dashboard</title>
+    <title>Arsii-74 Professional Signal Scanner</title>
     <style>
         :root {
             --bg-color: #121418;
@@ -11,7 +11,7 @@
             --text-color: #d1d4dc;
             --accent-buy: #089981;
             --accent-sell: #f23645;
-            --accent-warning: #ff9800;
+            --accent-wait: #ffffff;
             --border-color: #2a2e39;
         }
         body {
@@ -20,6 +20,7 @@
             color: var(--text-color);
             margin: 0;
             padding: 15px;
+            transition: background-color 0.3s ease;
         }
         header {
             display: flex;
@@ -30,132 +31,202 @@
             margin-bottom: 15px;
         }
         h1 { margin: 0; font-size: 1.25rem; color: #fff; }
-        .status-box { font-size: 0.85rem; }
-        .grid {
+        
+        .controls {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: var(--card-bg);
             padding: 12px;
-            position: relative;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
-        .pair-title {
-            font-size: 1rem;
-            font-weight: bold;
+        .control-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #848e9c;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            background: #121418;
             color: #fff;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            margin: 6px 0;
-            font-size: 0.85rem;
-        }
-        .badge {
-            padding: 3px 8px;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
-        .badge.buy { background-color: rgba(8, 153, 129, 0.2); color: var(--accent-buy); }
-        .badge.sell { background-color: rgba(242, 54, 69, 0.2); color: var(--accent-sell); }
-        .badge.neutral { background-color: rgba(255, 152, 0, 0.2); color: var(--accent-warning); }
-        .timer-box {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: var(--accent-warning);
+
+        /* Dynamic Board Themes based on signal */
+        .board {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
-            border-top: 1px solid var(--border-color);
-            padding-top: 6px;
+            transition: all 0.3s ease;
+        }
+        .board.buy-mode {
+            background-color: rgba(8, 153, 129, 0.15);
+            border-color: var(--accent-buy);
+        }
+        .board.sell-mode {
+            background-color: rgba(242, 54, 69, 0.15);
+            border-color: var(--accent-sell);
+        }
+        .board.wait-mode {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-wait);
+        }
+
+        .signal-title {
+            font-size: 1.8rem;
             font-weight: bold;
+            margin: 15px 0;
+        }
+        .buy-mode .signal-title { color: var(--accent-buy); }
+        .sell-mode .signal-title { color: var(--accent-sell); }
+        .wait-mode .signal-title { color: var(--accent-wait); }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 6px;
+        }
+        .countdown-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #ff9800;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Arsii-74 Dashboard</h1>
-        <div class="status-box">Status: <span id="connection-status" style="color: var(--accent-buy);">Active (15s Sync)</span></div>
+        <h1>Arsii-74 Signal Dashboard</h1>
+        <div style="font-size: 0.85rem;">Status: <span style="color: var(--accent-buy);">Live Scanner</span></div>
     </header>
 
-    <div class="grid" id="dashboard-grid">
-        <!-- Dynamic Cards Injection -->
+    <!-- Controls for Selection -->
+    <div class="controls">
+        <div class="control-group">
+            <label for="pair-select">Select Asset / OTC Pair</label>
+            <select id="pair-select">
+                <optgroup label="Standard Pairs">
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="GBP/USD">GBP/USD</option>
+                    <option value="AUD/USD">AUD/USD</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                </optgroup>
+                <optgroup label="OTC Pairs">
+                    <option value="EUR/USD (OTC)">EUR/USD (OTC)</option>
+                    <option value="GBP/USD (OTC)">GBP/USD (OTC)</option>
+                    <option value="AUD/CAD (OTC)">AUD/CAD (OTC)</option>
+                    <option value="BTC/USD (OTC)">BTC/USD (OTC)</option>
+                </optgroup>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="timeframe-select">Select Timeframe</label>
+            <select id="timeframe-select">
+                <optgroup label="Seconds">
+                    <option value="3">3 Seconds</option>
+                    <option value="5" selected>5 Seconds</option>
+                    <option value="10">10 Seconds</option>
+                    <option value="15">15 Seconds</option>
+                    <option value="30">30 Seconds</option>
+                </optgroup>
+                <optgroup label="Minutes & Hours">
+                    <option value="60">1 Minute</option>
+                    <option value="300">5 Minutes</option>
+                    <option value="900">15 Minutes</option>
+                    <option value="3600">1 Hour</option>
+                </optgroup>
+            </select>
+        </div>
+    </div>
+
+    <!-- Dynamic Output Board -->
+    <div class="board wait-mode" id="main-board">
+        <div style="font-size: 1.1rem; color: #fff;" id="selected-pair-label">EUR/USD</div>
+        <div class="signal-title" id="signal-text">WAIT</div>
+        
+        <div class="metric-row"><span>Current Price:</span> <strong id="price-val">1.08450</strong></div>
+        <div class="metric-row"><span>Indicator State:</span> <strong id="indicator-val">Analyzing...</strong></div>
+        <div class="metric-row"><span>Strength Check:</span> <strong id="strength-val">Low Momentum</strong></div>
+        
+        <div class="countdown-display" id="countdown-timer">Next Window: 5s</div>
     </div>
 
     <script>
-        const grid = document.getElementById('dashboard-grid');
-        
-        const PAIRS = [
-            "EUR/USD", "GBP/USD", "AUD/USD", "USD/JPY", 
-            "EUR/GBP", "USD/CAD", "EUR/USD (OTC)", "GBP/USD (OTC)", 
-            "AUD/CAD (OTC)", "NZD/USD (OTC)", "BTC/USD (OTC)", "ETH/USD (OTC)"
-        ];
+        const pairSelect = document.getElementById('pair-select');
+        const timeframeSelect = document.getElementById('timeframe-select');
+        const mainBoard = document.getElementById('main-board');
+        const selectedPairLabel = document.getElementById('selected-pair-label');
+        const signalText = document.getElementById('signal-text');
+        const priceVal = document.getElementById('price-val');
+        const indicatorVal = document.getElementById('indicator-val');
+        const strengthVal = document.getElementById('strength-val');
+        const countdownTimer = document.getElementById('countdown-timer');
 
-        // Cache generated values per pair so they stay stable during the 15s window
-        const pairData = {};
-        PAIRS.forEach(pair => {
-            pairData[pair] = generatePairState();
+        let currentTimeLeft = 5;
+        let selectedTimeframe = 5;
+
+        timeframeSelect.addEventListener('change', (e) => {
+            selectedTimeframe = parseInt(e.target.value);
+            currentTimeLeft = selectedTimeframe;
         });
 
-        function generatePairState() {
-            const base_price = (Math.random() * (1.15 - 1.0) + 1.0).toFixed(5);
-            const rsi = (Math.random() * (85 - 15) + 15).toFixed(2);
-            const trend = rsi > 50 ? "BULLISH" : "BEARISH";
+        function runScannerEngine() {
+            selectedPairLabel.textContent = pairSelect.value;
             
-            let signal = "NEUTRAL";
-            if (rsi < 32) signal = "BUY";
-            else if (rsi > 68) signal = "SELL";
+            // Generate simulated analytical state
+            const randomVal = Math.random();
+            const price = (1.0 + Math.random() * 0.1).toFixed(5);
+            priceVal.textContent = price;
 
-            return { base_price, rsi, trend, signal };
-        }
+            let signal = "WAIT";
+            let modeClass = "wait-mode";
+            let indicatorState = "Neutral Range";
+            let strengthState = "Insufficient Momentum";
 
-        function updateDashboard() {
-            // Calculate exact 15-second interval countdown based on system time
-            const epochSeconds = Math.floor(Date.now() / 1000);
-            const countdownSeconds = 15 - (epochSeconds % 15);
-
-            // Refresh market states precisely when the 15s cycle flips over
-            if (countdownSeconds === 15) {
-                PAIRS.forEach(pair => {
-                    pairData[pair] = generatePairState();
-                });
+            // Conditional simulation logic for demo strength signals
+            if (randomVal < 0.33) {
+                signal = "BUY";
+                modeClass = "buy-mode";
+                indicatorState = "Oversold Bounce";
+                strengthState = "Strong Bullish Setup";
+            } else if (randomVal > 0.66) {
+                signal = "SELL";
+                modeClass = "sell-mode";
+                indicatorState = "Overbought Rejection";
+                strengthState = "Strong Bearish Setup";
             }
 
-            grid.innerHTML = '';
-
-            PAIRS.forEach(pair => {
-                const data = pairData[pair];
-                
-                let badgeClass = 'neutral';
-                if (data.signal === 'BUY') badgeClass = 'buy';
-                if (data.signal === 'SELL') badgeClass = 'sell';
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="pair-title">
-                        <span>${pair}</span>
-                        <span class="badge ${badgeClass}">${data.signal}</span>
-                    </div>
-                    <div class="metric"><span>Price:</span> <strong>${data.base_price}</strong></div>
-                    <div class="metric"><span>RSI Indicator:</span> <strong>${data.rsi}</strong></div>
-                    <div class="metric"><span>Market Trend:</span> <strong>${data.trend}</strong></div>
-                    <div class="timer-box">Next Candle Reset in: <span>${countdownSeconds}s</span></div>
-                `;
-                grid.appendChild(card);
-            });
+            // Apply theme classes
+            mainBoard.className = `board ${modeClass}`;
+            signalText.textContent = signal;
+            indicatorVal.textContent = indicatorState;
+            strengthVal.textContent = strengthState;
         }
 
-        // Run every second to update the countdown smoothly
-        setInterval(updateDashboard, 1000);
-        updateDashboard();
+        // Timer Loop running every second
+        setInterval(() => {
+            currentTimeLeft--;
+            if (currentTimeLeft <= 0) {
+                currentTimeLeft = selectedTimeframe;
+                runScannerEngine(); // Refresh signal data on cycle reset
+            }
+            countdownTimer.textContent = `Next Window: ${currentTimeLeft}s`;
+        }, 1000);
+
+        // Initial run
+        runScannerEngine();
     </script>
 </body>
 </html>
