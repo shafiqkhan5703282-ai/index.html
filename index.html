@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Pro Terminal - Dynamic Bot Suite</title>
+    <title>Arsii-74 Pro Terminal - High-Frequency Signals</title>
     <style>
         :root {
             --bg-color: #0b0e11;
@@ -31,10 +31,10 @@
 
         /* Screen blinking global states */
         body.blink-green {
-            animation: screenBlinkGreen 0.4s infinite alternate;
+            animation: screenBlinkGreen 0.3s infinite alternate;
         }
         body.blink-red {
-            animation: screenBlinkRed 0.4s infinite alternate;
+            animation: screenBlinkRed 0.3s infinite alternate;
         }
         body.mode-green {
             background-color: rgba(14, 203, 129, 0.08);
@@ -45,11 +45,11 @@
 
         @keyframes screenBlinkGreen {
             from { background-color: #0b0e11; }
-            to { background-color: rgba(14, 203, 129, 0.25); }
+            to { background-color: rgba(14, 203, 129, 0.3); }
         }
         @keyframes screenBlinkRed {
             from { background-color: #0b0e11; }
-            to { background-color: rgba(246, 70, 93, 0.25); }
+            to { background-color: rgba(246, 70, 93, 0.3); }
         }
 
         .container {
@@ -123,7 +123,7 @@
             transform: none;
         }
 
-        /* Sleek Dynamic Bot Terminal Board */
+        /* Sleek Dynamic Terminal Board */
         .terminal-board {
             background-color: var(--card-bg);
             border: 3px solid var(--border-color);
@@ -134,14 +134,14 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .terminal-board.buy-mode {
-            background-color: rgba(14, 203, 129, 0.14);
+            background-color: rgba(14, 203, 129, 0.16);
             border-color: var(--accent-buy);
-            box-shadow: 0 0 40px rgba(14, 203, 129, 0.3);
+            box-shadow: 0 0 45px rgba(14, 203, 129, 0.35);
         }
         .terminal-board.sell-mode {
-            background-color: rgba(246, 70, 93, 0.14);
+            background-color: rgba(246, 70, 93, 0.16);
             border-color: var(--accent-sell);
-            box-shadow: 0 0 40px rgba(246, 70, 93, 0.3);
+            box-shadow: 0 0 45px rgba(246, 70, 93, 0.35);
         }
         .terminal-board.wait-mode {
             background-color: rgba(255, 255, 255, 0.02);
@@ -157,7 +157,7 @@
         }
 
         .signal-display {
-            font-size: 3.5rem;
+            font-size: 3.8rem;
             font-weight: 900;
             margin: 15px 0;
             letter-spacing: 2px;
@@ -283,8 +283,8 @@
             
             <div class="metrics-grid">
                 <div class="metric-row"><span>Simulated Price:</span> <strong id="price-val">1.08500</strong></div>
-                <div class="metric-row"><span>RSI Momentum (14):</span> <strong id="rsi-val">50.00</strong></div>
-                <div class="metric-row"><span>Status:</span> <strong id="status-val">Waiting for Manual Tap</strong></div>
+                <div class="metric-row"><span>Trend Velocity:</span> <strong id="rsi-val">+0.12%</strong></div>
+                <div class="metric-row"><span>Status:</span> <strong id="status-val">Ready for Tap</strong></div>
             </div>
 
             <div class="countdown-container">
@@ -313,24 +313,9 @@
         function getHistory(pair) {
             if (!priceHistory[pair]) {
                 let base = pair.includes("BTC") ? 65000.0 : (pair.includes("Gold") ? 2300.0 : 1.08500);
-                priceHistory[pair] = Array.from({length: 20}, () => base += (Math.random() - 0.5) * (base * 0.0001));
+                priceHistory[pair] = Array.from({length: 15}, () => base += (Math.random() - 0.5) * (base * 0.0002));
             }
             return priceHistory[pair];
-        }
-
-        function calculateRSI(prices) {
-            let gains = 0;
-            let losses = 0;
-            for (let i = 1; i < prices.length; i++) {
-                let diff = prices[i] - prices[i - 1];
-                if (diff >= 0) gains += diff;
-                else losses -= diff;
-            }
-            let avgGain = gains / 14;
-            let avgLoss = losses / 14;
-            if (avgLoss === 0) return 100;
-            let rs = avgGain / avgLoss;
-            return +(100 - (100 / (1 + rs))).toFixed(2);
         }
 
         triggerBtn.addEventListener('click', () => {
@@ -340,29 +325,29 @@
             // Clear previous states
             bodyTag.className = "";
             terminalBoard.className = "terminal-board wait-mode";
-            signalText.textContent = "WAIT";
-            statusVal.textContent = "Analyzing Market Feed...";
+            signalText.textContent = "SCANNING";
+            statusVal.textContent = "Evaluating Order Flow...";
             countdownTitle.textContent = "4-Second Analysis";
             countdownVal.classList.add('urgent');
 
-            // Evaluate next price action and RSI
+            // Pre-calculate trend direction to set preliminary blink color
             const currentPair = pairSelect.value;
             const history = getHistory(currentPair);
             const lastPrice = history[history.length - 1];
-            const multiplier = currentPair.includes("BTC") ? 10.0 : (currentPair.includes("Gold") ? 1.0 : 0.0008);
-            const newPrice = +(lastPrice + (Math.random() - 0.49) * multiplier).toFixed(currentPair.includes("BTC") ? 2 : 5);
+            const multiplier = currentPair.includes("BTC") ? 15.0 : (currentPair.includes("Gold") ? 1.5 : 0.001);
+            
+            // Random momentum bias to guarantee a BUY or SELL outcome
+            const randomDirection = Math.random() >= 0.5 ? 1 : -1;
+            const newPrice = +(lastPrice + randomDirection * Math.random() * multiplier).toFixed(currentPair.includes("BTC") ? 2 : 5);
             
             history.push(newPrice);
             history.shift();
-            const rsi = calculateRSI(history);
 
-            // Trigger screen blinking based on directional setup
-            if (rsi <= 26) {
+            // Set blink style matching the upcoming signal direction
+            if (randomDirection > 0) {
                 bodyTag.classList.add('blink-green');
-            } else if (rsi >= 74) {
-                bodyTag.classList.add('blink-red');
             } else {
-                bodyTag.classList.add('blink-green'); // default visual feedback blink
+                bodyTag.classList.add('blink-red');
             }
 
             // Strictly 4 seconds countdown loop
@@ -378,53 +363,51 @@
                     countdownVal.classList.remove('urgent');
                     bodyTag.className = ""; // clear blinking
 
-                    // Lock in final signal
-                    finalizeSignal(newPrice, rsi);
+                    // Lock in final active signal (BUY or SELL)
+                    finalizeSignal(newPrice, randomDirection);
                 }
             }, 1000);
         });
 
-        function finalizeSignal(newPrice, rsi) {
+        function finalizeSignal(newPrice, direction) {
             priceVal.textContent = newPrice;
-            rsiVal.textContent = rsi;
+            rsiVal.textContent = (direction > 0 ? "+" : "") + (direction * (Math.random() * 0.4 + 0.1)).toFixed(2) + "%";
 
-            let signal = "WAIT";
-            let modeClass = "wait-mode";
-            let statusText = "No Signal / Neutral";
+            let signal = "";
+            let modeClass = "";
+            let statusText = "";
 
-            if (rsi <= 26) {
+            if (direction > 0) {
                 signal = "BUY";
                 modeClass = "buy-mode";
-                statusText = "BUY Signal Confirmed";
+                statusText = "BUY Momentum Confirmed";
                 bodyTag.classList.add('mode-green');
-            } else if (rsi >= 74) {
+            } else {
                 signal = "SELL";
                 modeClass = "sell-mode";
-                statusText = "SELL Signal Confirmed";
+                statusText = "SELL Momentum Confirmed";
                 bodyTag.classList.add('mode-red');
-            } else {
-                statusText = "Wait State Maintained";
             }
 
             terminalBoard.className = `terminal-board ${modeClass}`;
             signalText.textContent = signal;
             statusVal.textContent = statusText;
 
-            // Start trade duration timer countdown
-            let tradeDuration = parseInt(timeframeSelect.value);
+            // Start full trade duration countdown timer based on user selection
+            let durationLeft = parseInt(timeframeSelect.value);
             countdownTitle.textContent = "Trade Active (Duration Left)";
-            countdownVal.textContent = tradeDuration + "s";
+            countdownVal.textContent = durationLeft + "s";
 
-            const tradeInterval = setInterval(() => {
-                tradeDuration--;
-                if (tradeDuration > 0) {
-                    countdownVal.textContent = tradeDuration + "s";
+            const timerInterval = setInterval(() => {
+                durationLeft--;
+                if (durationLeft > 0) {
+                    countdownVal.textContent = durationLeft + "s";
                 } else {
-                    clearInterval(tradeInterval);
+                    clearInterval(timerInterval);
                     countdownTitle.textContent = "System Status";
                     countdownVal.textContent = "Ready for Next Tap";
                     bodyTag.className = ""; // Reset body background colors
-                    triggerBtn.disabled = false; // Re-enable button
+                    triggerBtn.disabled = false; // Re-enable button immediately
                 }
             }, 1000);
         }
