@@ -3,196 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 High-Accuracy Signal Scanner</title>
+    <title>Arsii-74 Professional Terminal - Complete OTC Suite</title>
     <style>
         :root {
-            --bg-color: #121418;
-            --card-bg: #1e222d;
-            --text-color: #d1d4dc;
-            --accent-buy: #089981;
-            --accent-sell: #f23645;
+            --bg-color: #0b0e11;
+            --card-bg: #151922;
+            --text-color: #eaecef;
+            --accent-buy: #0ecb81;
+            --accent-sell: #f6465d;
             --accent-wait: #ffffff;
-            --border-color: #2a2e39;
+            --border-color: #2b313a;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 15px;
-            transition: background-color 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 650px;
         }
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-            margin-bottom: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
-        h1 { margin: 0; font-size: 1.25rem; color: #fff; }
+        h1 { margin: 0; font-size: 1.6rem; color: #fff; letter-spacing: 0.5px; }
         
-        .controls {
+        .control-panel {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin-bottom: 20px;
             background: var(--card-bg);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
         }
         .control-group label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #848e9c;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
         select {
             width: 100%;
-            padding: 8px;
-            background: #121418;
+            padding: 10px;
+            background: #0b0e11;
             color: #fff;
             border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 0.9rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: bold;
         }
 
-        .board {
+        /* Big Dynamic Professional Board */
+        .terminal-board {
             background-color: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
             text-align: center;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
-        .board.buy-mode {
-            background-color: rgba(8, 153, 129, 0.15);
+        .terminal-board.buy-mode {
+            background-color: rgba(14, 203, 129, 0.12);
             border-color: var(--accent-buy);
+            box-shadow: 0 0 30px rgba(14, 203, 129, 0.25);
         }
-        .board.sell-mode {
-            background-color: rgba(242, 54, 69, 0.15);
+        .terminal-board.sell-mode {
+            background-color: rgba(246, 70, 93, 0.12);
             border-color: var(--accent-sell);
+            box-shadow: 0 0 30px rgba(246, 70, 93, 0.25);
         }
-        .board.wait-mode {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-color: var(--accent-wait);
+        .terminal-board.wait-mode {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: var(--border-color);
         }
 
-        .signal-title {
-            font-size: 1.8rem;
+        .pair-badge {
+            font-size: 1.2rem;
+            color: #848e9c;
             font-weight: bold;
-            margin: 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .buy-mode .signal-title { color: var(--accent-buy); }
-        .sell-mode .signal-title { color: var(--accent-sell); }
-        .wait-mode .signal-title { color: var(--accent-wait); }
 
+        .signal-display {
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+        .buy-mode .signal-display { color: var(--accent-buy); }
+        .sell-mode .signal-display { color: var(--accent-sell); }
+        .wait-mode .signal-display { color: var(--accent-wait); }
+
+        .metrics-grid {
+            margin: 20px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
         .metric-row {
             display: flex;
             justify-content: space-between;
             margin: 10px 0;
-            font-size: 0.95rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 6px;
+            font-size: 1.05rem;
         }
-        .countdown-display {
-            font-size: 1.2rem;
+        .metric-row span { color: #848e9c; }
+        .metric-row strong { color: #fff; }
+
+        .countdown-container {
+            margin-top: 25px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        .countdown-label {
+            font-size: 0.9rem;
+            color: #848e9c;
+            margin-bottom: 5px;
+        }
+        .countdown-number {
+            font-size: 2rem;
             font-weight: bold;
-            margin-top: 15px;
-            color: #ff9800;
+            color: #f0b90b;
+        }
+        .countdown-number.urgent {
+            color: var(--accent-sell);
+            animation: pulse 0.6s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0.6; transform: scale(1.05); }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Arsii-74 Precision Engine</h1>
-        <div style="font-size: 0.85rem;">Status: <span style="color: var(--accent-buy);">Math Engine Active</span></div>
-    </header>
+    <div class="container">
+        <header>
+            <h1>Arsii-74 Professional Terminal</h1>
+        </header>
 
-    <div class="controls">
-        <div class="control-group">
-            <label for="pair-select">Select Asset / OTC Pair</label>
-            <select id="pair-select">
-                <optgroup label="Standard Pairs">
-                    <option value="EUR/USD">EUR/USD</option>
-                    <option value="GBP/USD">GBP/USD</option>
-                    <option value="AUD/USD">AUD/USD</option>
-                    <option value="USD/JPY">USD/JPY</option>
-                </optgroup>
-                <optgroup label="OTC Pairs">
-                    <option value="EUR/USD (OTC)">EUR/USD (OTC)</option>
-                    <option value="GBP/USD (OTC)">GBP/USD (OTC)</option>
-                    <option value="AUD/CAD (OTC)">AUD/CAD (OTC)</option>
-                    <option value="BTC/USD (OTC)">BTC/USD (OTC)</option>
-                </optgroup>
-            </select>
+        <!-- Controls with All Standard & OTC Pairs -->
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="pair-select">Asset / Pair Selection</label>
+                <select id="pair-select">
+                    <optgroup label="Standard Forex Pairs">
+                        <option value="EUR/USD">EUR/USD</option>
+                        <option value="GBP/USD">GBP/USD</option>
+                        <option value="AUD/USD">AUD/USD</option>
+                        <option value="USD/JPY">USD/JPY</option>
+                        <option value="USD/CAD">USD/CAD</option>
+                        <option value="EUR/GBP">EUR/GBP</option>
+                        <option value="AUD/CAD">AUD/CAD</option>
+                        <option value="NZD/USD">NZD/USD</option>
+                    </optgroup>
+                    <optgroup label="OTC Forex Pairs">
+                        <option value="EUR/USD (OTC)">EUR/USD (OTC)</option>
+                        <option value="GBP/USD (OTC)">GBP/USD (OTC)</option>
+                        <option value="AUD/USD (OTC)">AUD/USD (OTC)</option>
+                        <option value="USD/JPY (OTC)">USD/JPY (OTC)</option>
+                        <option value="USD/CHF (OTC)">USD/CHF (OTC)</option>
+                        <option value="EUR/GBP (OTC)">EUR/GBP (OTC)</option>
+                        <option value="EUR/JPY (OTC)">EUR/JPY (OTC)</option>
+                        <option value="GBP/JPY (OTC)">GBP/JPY (OTC)</option>
+                        <option value="AUD/CAD (OTC)">AUD/CAD (OTC)</option>
+                        <option value="NZD/USD (OTC)">NZD/USD (OTC)</option>
+                        <option value="USD/CAD (OTC)">USD/CAD (OTC)</option>
+                    </optgroup>
+                    <optgroup label="OTC Crypto & Commodities">
+                        <option value="BTC/USD (OTC)">BTC/USD (OTC)</option>
+                        <option value="ETH/USD (OTC)">ETH/USD (OTC)</option>
+                        <option value="LTC/USD (OTC)">LTC/USD (OTC)</option>
+                        <option value="XRP/USD (OTC)">XRP/USD (OTC)</option>
+                        <option value="Gold (OTC)">Gold (OTC)</option>
+                        <option value="Silver (OTC)">Silver (OTC)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="timeframe-select">Timeframe</label>
+                <select id="timeframe-select">
+                    <option value="3">3 Seconds</option>
+                    <option value="5" selected>5 Seconds</option>
+                    <option value="10">10 Seconds</option>
+                    <option value="15">15 Seconds</option>
+                    <option value="30">30 Seconds</option>
+                    <option value="60">1 Minute</option>
+                    <option value="300">5 Minutes</option>
+                </select>
+            </div>
         </div>
-        <div class="control-group">
-            <label for="timeframe-select">Select Timeframe</label>
-            <select id="timeframe-select">
-                <option value="3">3 Seconds</option>
-                <option value="5" selected>5 Seconds</option>
-                <option value="10">10 Seconds</option>
-                <option value="15">15 Seconds</option>
-                <option value="30">30 Seconds</option>
-                <option value="60">1 Minute</option>
-            </select>
-        </div>
-    </div>
 
-    <div class="board wait-mode" id="main-board">
-        <div style="font-size: 1.1rem; color: #fff;" id="selected-pair-label">EUR/USD</div>
-        <div class="signal-title" id="signal-text">WAIT</div>
-        
-        <div class="metric-row"><span>Latest Price:</span> <strong id="price-val">1.08450</strong></div>
-        <div class="metric-row"><span>Calculated RSI (14):</span> <strong id="rsi-val">50.00</strong></div>
-        <div class="metric-row"><span>Filter Status:</span> <strong id="filter-val">Filtering Noise...</strong></div>
-        
-        <div class="countdown-display" id="countdown-timer">Next Window: 5s</div>
+        <!-- Big Dynamic Terminal Board -->
+        <div class="terminal-board wait-mode" id="terminal-board">
+            <div class="pair-badge" id="display-pair">EUR/USD</div>
+            <div class="signal-display" id="signal-text">WAIT</div>
+            
+            <div class="metrics-grid">
+                <div class="metric-row"><span>Simulated Price:</span> <strong id="price-val">1.08500</strong></div>
+                <div class="metric-row"><span>RSI Momentum (14):</span> <strong id="rsi-val">50.00</strong></div>
+                <div class="metric-row"><span>Filter Status:</span> <strong id="status-val">Scanning Market...</strong></div>
+            </div>
+
+            <div class="countdown-container">
+                <div class="countdown-label" id="countdown-title">Next Cycle Reset</div>
+                <div class="countdown-number" id="countdown-val">5s</div>
+            </div>
+        </div>
     </div>
 
     <script>
         const pairSelect = document.getElementById('pair-select');
         const timeframeSelect = document.getElementById('timeframe-select');
-        const mainBoard = document.getElementById('main-board');
-        const selectedPairLabel = document.getElementById('selected-pair-label');
+        const terminalBoard = document.getElementById('terminal-board');
+        const displayPair = document.getElementById('display-pair');
         const signalText = document.getElementById('signal-text');
         const priceVal = document.getElementById('price-val');
         const rsiVal = document.getElementById('rsi-val');
-        const filterVal = document.getElementById('filter-val');
-        const countdownTimer = document.getElementById('countdown-timer');
+        const statusVal = document.getElementById('status-val');
+        const countdownVal = document.getElementById('countdown-val');
+        const countdownTitle = document.getElementById('countdown-title');
 
-        let currentTimeLeft = 5;
         let selectedTimeframe = 5;
-
-        // Maintain a historical price array per asset for real math calculations
+        let currentTimeLeft = 5;
         const priceHistory = {};
-        
+
         function getHistory(pair) {
             if (!priceHistory[pair]) {
-                let base = 1.08500;
-                priceHistory[pair] = Array.from({length: 20}, () => base += (Math.random() - 0.5) * 0.0005);
+                let base = pair.includes("BTC") ? 65000.0 : (pair.includes("Gold") ? 2300.0 : 1.08500);
+                priceHistory[pair] = Array.from({length: 20}, () => base += (Math.random() - 0.5) * (base * 0.0001));
             }
             return priceHistory[pair];
         }
-
-        // Mathematical RSI Calculation Function
-        prices => {
-            let gains = 0;
-            let losses = 0;
-            for (let i = 1; i < prices.length; i++) {
-                let diff = prices[i] - prices[i - 1];
-                if (diff >= 0) gains += diff;
-                else losses -= diff;
-            }
-            let avgGain = gains / 14;
-            let avgLoss = losses / 14;
-            if (avgLoss === 0) return 100;
-            let rs = avgGain / avgLoss;
-            return +(100 - (100 / (1 + rs))).toFixed(2);
-        };
 
         function calculateRSI(prices) {
             let gains = 0;
@@ -214,52 +270,64 @@
             currentTimeLeft = selectedTimeframe;
         });
 
-        function runMathematicalScanner() {
+        function evaluateMarket() {
             const currentPair = pairSelect.value;
-            selectedPairLabel.textContent = currentPair;
+            displayPair.textContent = currentPair;
 
             const history = getHistory(currentPair);
-            // Simulate next tick variation
             const lastPrice = history[history.length - 1];
-            const newPrice = +(lastPrice + (Math.random() - 0.49) * 0.0008).toFixed(5);
+            const multiplier = currentPair.includes("BTC") ? 10.0 : (currentPair.includes("Gold") ? 1.0 : 0.0008);
+            const newPrice = +(lastPrice + (Math.random() - 0.49) * multiplier).toFixed(currentPair.includes("BTC") ? 2 : 5);
             
             history.push(newPrice);
-            history.shift(); // Keep array size steady
+            history.shift();
 
-            const currentRSI = calculateRSI(history);
+            const rsi = calculateRSI(history);
             priceVal.textContent = newPrice;
-            rsiVal.textContent = currentRSI;
+            rsiVal.textContent = rsi;
 
             let signal = "WAIT";
             let modeClass = "wait-mode";
-            let filterState = "Market Noise / Neutral Zone";
+            let statusText = "Neutral / Filtering Noise";
 
-            // Strict Mathematical Thresholds for Confluence
-            if (currentRSI <= 28) {
+            // Strict mathematical thresholds for signal output
+            if (rsi <= 26) {
                 signal = "BUY";
                 modeClass = "buy-mode";
-                filterState = "Oversold Confluence Confirmed";
-            } else if (currentRSI >= 72) {
+                statusText = "Strong Oversold Confluence";
+            } else if (rsi >= 74) {
                 signal = "SELL";
                 modeClass = "sell-mode";
-                filterState = "Overbought Confluence Confirmed";
+                statusText = "Strong Overbought Rejection";
             }
 
-            mainBoard.className = `board ${modeClass}`;
+            terminalBoard.className = `terminal-board ${modeClass}`;
             signalText.textContent = signal;
-            filterVal.textContent = filterState;
+            statusVal.textContent = statusText;
         }
 
+        // Ticker loop
         setInterval(() => {
             currentTimeLeft--;
+
+            // Highlight the final 4-to-1 sequence clearly
+            if (currentTimeLeft <= 4 && currentTimeLeft > 0) {
+                countdownTitle.textContent = "Execution Window (Entry Countdown)";
+                countdownVal.classList.add('urgent');
+            } else {
+                countdownTitle.textContent = "Next Cycle Reset";
+                countdownVal.classList.remove('urgent');
+            }
+
             if (currentTimeLeft <= 0) {
                 currentTimeLeft = selectedTimeframe;
-                runMathematicalScanner();
+                evaluateMarket();
             }
-            countdownTimer.textContent = `Next Window: ${currentTimeLeft}s`;
+
+            countdownVal.textContent = currentTimeLeft + "s";
         }, 1000);
 
-        runMathematicalScanner();
+        evaluateMarket();
     </script>
 </body>
 </html>
