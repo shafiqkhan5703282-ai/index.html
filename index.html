@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Manual Trigger Terminal</title>
+    <title>Arsii-74 Pro Terminal - Dynamic Bot Suite</title>
     <style>
         :root {
             --bg-color: #0b0e11;
@@ -12,6 +12,8 @@
             --accent-buy: #0ecb81;
             --accent-sell: #f6465d;
             --accent-wait: #ffffff;
+            --accent-orange: #ff9f43;
+            --accent-orange-hover: #ff7f11;
             --border-color: #2b313a;
         }
         body {
@@ -23,10 +25,36 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
         }
+
+        /* Screen blinking global states */
+        body.blink-green {
+            animation: screenBlinkGreen 0.4s infinite alternate;
+        }
+        body.blink-red {
+            animation: screenBlinkRed 0.4s infinite alternate;
+        }
+        body.mode-green {
+            background-color: rgba(14, 203, 129, 0.08);
+        }
+        body.mode-red {
+            background-color: rgba(246, 70, 93, 0.08);
+        }
+
+        @keyframes screenBlinkGreen {
+            from { background-color: #0b0e11; }
+            to { background-color: rgba(14, 203, 129, 0.25); }
+        }
+        @keyframes screenBlinkRed {
+            from { background-color: #0b0e11; }
+            to { background-color: rgba(246, 70, 93, 0.25); }
+        }
+
         .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 680px;
         }
         header {
             text-align: center;
@@ -34,7 +62,7 @@
             padding-bottom: 15px;
             margin-bottom: 20px;
         }
-        h1 { margin: 0; font-size: 1.6rem; color: #fff; letter-spacing: 0.5px; }
+        h1 { margin: 0; font-size: 1.8rem; color: #fff; letter-spacing: 0.8px; }
         
         .control-panel {
             display: grid;
@@ -42,9 +70,10 @@
             gap: 15px;
             margin-bottom: 20px;
             background: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 18px;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .control-group label {
             display: block;
@@ -55,34 +84,36 @@
         }
         select {
             width: 100%;
-            padding: 10px;
+            padding: 11px;
             background: #0b0e11;
             color: #fff;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
             font-weight: bold;
         }
 
-        /* Big Action Button */
+        /* Light Orange Action Button */
         .action-btn {
             width: 100%;
-            background: linear-gradient(135deg, #f0b90b, #d49a00);
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-hover));
             color: #0b0e11;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 900;
-            padding: 16px;
+            padding: 18px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
-            transition: all 0.2s ease;
+            box-shadow: 0 6px 20px rgba(255, 159, 67, 0.35);
+            transition: all 0.25s ease;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(240, 185, 11, 0.5);
+            box-shadow: 0 8px 25px rgba(255, 159, 67, 0.55);
+            background: linear-gradient(135deg, #ffaf5c, #ff8c2b);
         }
         .action-btn:disabled {
             background: #2b313a;
@@ -92,41 +123,41 @@
             transform: none;
         }
 
-        /* Big Dynamic Professional Board */
+        /* Sleek Dynamic Bot Terminal Board */
         .terminal-board {
             background-color: var(--card-bg);
             border: 3px solid var(--border-color);
-            border-radius: 16px;
-            padding: 30px 20px;
+            border-radius: 18px;
+            padding: 35px 25px;
             text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transition: all 0.35s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .terminal-board.buy-mode {
-            background-color: rgba(14, 203, 129, 0.12);
+            background-color: rgba(14, 203, 129, 0.14);
             border-color: var(--accent-buy);
-            box-shadow: 0 0 30px rgba(14, 203, 129, 0.25);
+            box-shadow: 0 0 40px rgba(14, 203, 129, 0.3);
         }
         .terminal-board.sell-mode {
-            background-color: rgba(246, 70, 93, 0.12);
+            background-color: rgba(246, 70, 93, 0.14);
             border-color: var(--accent-sell);
-            box-shadow: 0 0 30px rgba(246, 70, 93, 0.25);
+            box-shadow: 0 0 40px rgba(246, 70, 93, 0.3);
         }
         .terminal-board.wait-mode {
-            background-color: rgba(255, 255, 255, 0.03);
+            background-color: rgba(255, 255, 255, 0.02);
             border-color: var(--border-color);
         }
 
         .pair-badge {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: #848e9c;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         .signal-display {
-            font-size: 3.2rem;
+            font-size: 3.5rem;
             font-weight: 900;
             margin: 15px 0;
             letter-spacing: 2px;
@@ -136,17 +167,17 @@
         .wait-mode .signal-display { color: var(--accent-wait); }
 
         .metrics-grid {
-            margin: 20px 0;
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            padding: 15px;
+            margin: 25px 0;
+            background: rgba(0,0,0,0.25);
+            border-radius: 12px;
+            padding: 18px;
             border: 1px solid var(--border-color);
         }
         .metric-row {
             display: flex;
             justify-content: space-between;
-            margin: 10px 0;
-            font-size: 1.05rem;
+            margin: 12px 0;
+            font-size: 1.1rem;
         }
         .metric-row span { color: #848e9c; }
         .metric-row strong { color: #fff; }
@@ -154,26 +185,26 @@
         .countdown-container {
             margin-top: 25px;
             border-top: 1px solid var(--border-color);
-            padding-top: 15px;
+            padding-top: 18px;
         }
         .countdown-label {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #848e9c;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
         .countdown-number {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
-            color: #f0b90b;
+            color: var(--accent-orange);
         }
         .countdown-number.urgent {
-            color: var(--accent-sell);
-            animation: pulse 0.6s infinite alternate;
+            color: #fff;
+            animation: pulse 0.4s infinite alternate;
         }
 
         @keyframes pulse {
             from { opacity: 1; transform: scale(1); }
-            to { opacity: 0.6; transform: scale(1.05); }
+            to { opacity: 0.5; transform: scale(1.04); }
         }
     </style>
 </head>
@@ -181,7 +212,7 @@
 
     <div class="container">
         <header>
-            <h1>Arsii-74 Professional Terminal</h1>
+            <h1>Arsii-74 Bot Terminal</h1>
         </header>
 
         <!-- Controls: All Pairs & Timeframes -->
@@ -235,16 +266,17 @@
                         <option value="60">1 Minute</option>
                         <option value="300">5 Minutes</option>
                         <option value="900">15 Minutes</option>
+                        <option value="1800">30 Minutes</option>
                         <option value="3600">1 Hour</option>
                     </optgroup>
                 </select>
             </div>
         </div>
 
-        <!-- Big Manual Trigger Button -->
-        <button class="action-btn" id="trigger-btn">Generate Next Signal</button>
+        <!-- Light Orange Big Action Button -->
+        <button class="action-btn" id="trigger-btn">Generate Signal</button>
 
-        <!-- Big Dynamic Terminal Board -->
+        <!-- Sleek Dynamic Terminal Board -->
         <div class="terminal-board wait-mode" id="terminal-board">
             <div class="pair-badge" id="display-pair">EUR/USD</div>
             <div class="signal-display" id="signal-text">WAIT</div>
@@ -252,17 +284,18 @@
             <div class="metrics-grid">
                 <div class="metric-row"><span>Simulated Price:</span> <strong id="price-val">1.08500</strong></div>
                 <div class="metric-row"><span>RSI Momentum (14):</span> <strong id="rsi-val">50.00</strong></div>
-                <div class="metric-row"><span>Status:</span> <strong id="status-val">Ready for Manual Tap</strong></div>
+                <div class="metric-row"><span>Status:</span> <strong id="status-val">Waiting for Manual Tap</strong></div>
             </div>
 
             <div class="countdown-container">
-                <div class="countdown-label" id="countdown-title">Status</div>
+                <div class="countdown-label" id="countdown-title">System Status</div>
                 <div class="countdown-number" id="countdown-val">Idle</div>
             </div>
         </div>
     </div>
 
     <script>
+        const bodyTag = document.body;
         const pairSelect = document.getElementById('pair-select');
         const timeframeSelect = document.getElementById('timeframe-select');
         const triggerBtn = document.getElementById('trigger-btn');
@@ -302,15 +335,38 @@
 
         triggerBtn.addEventListener('click', () => {
             triggerBtn.disabled = true;
-            let count = 5;
             displayPair.textContent = pairSelect.value;
             
-            // Reset board to waiting state during countdown
+            // Clear previous states
+            bodyTag.className = "";
             terminalBoard.className = "terminal-board wait-mode";
             signalText.textContent = "WAIT";
-            statusVal.textContent = "Counting down entry...";
-            countdownTitle.textContent = "Entry Countdown";
+            statusVal.textContent = "Analyzing Market Feed...";
+            countdownTitle.textContent = "4-Second Analysis";
             countdownVal.classList.add('urgent');
+
+            // Evaluate next price action and RSI
+            const currentPair = pairSelect.value;
+            const history = getHistory(currentPair);
+            const lastPrice = history[history.length - 1];
+            const multiplier = currentPair.includes("BTC") ? 10.0 : (currentPair.includes("Gold") ? 1.0 : 0.0008);
+            const newPrice = +(lastPrice + (Math.random() - 0.49) * multiplier).toFixed(currentPair.includes("BTC") ? 2 : 5);
+            
+            history.push(newPrice);
+            history.shift();
+            const rsi = calculateRSI(history);
+
+            // Trigger screen blinking based on directional setup
+            if (rsi <= 26) {
+                bodyTag.classList.add('blink-green');
+            } else if (rsi >= 74) {
+                bodyTag.classList.add('blink-red');
+            } else {
+                bodyTag.classList.add('blink-green'); // default visual feedback blink
+            }
+
+            // Strictly 4 seconds countdown loop
+            let count = 4;
             countdownVal.textContent = count + "s";
 
             const countdownInterval = setInterval(() => {
@@ -320,46 +376,41 @@
                 } else {
                     clearInterval(countdownInterval);
                     countdownVal.classList.remove('urgent');
-                    
-                    // Generate Signal after countdown hits 1s
-                    generateSignalResult();
+                    bodyTag.className = ""; // clear blinking
+
+                    // Lock in final signal
+                    finalizeSignal(newPrice, rsi);
                 }
             }, 1000);
         });
 
-        function generateSignalResult() {
-            const currentPair = pairSelect.value;
-            const history = getHistory(currentPair);
-            const lastPrice = history[history.length - 1];
-            const multiplier = currentPair.includes("BTC") ? 10.0 : (currentPair.includes("Gold") ? 1.0 : 0.0008);
-            const newPrice = +(lastPrice + (Math.random() - 0.49) * multiplier).toFixed(currentPair.includes("BTC") ? 2 : 5);
-            
-            history.push(newPrice);
-            history.shift();
-
-            const rsi = calculateRSI(history);
+        function finalizeSignal(newPrice, rsi) {
             priceVal.textContent = newPrice;
             rsiVal.textContent = rsi;
 
             let signal = "WAIT";
             let modeClass = "wait-mode";
-            let statusText = "Neutral / No Strong Confluence";
+            let statusText = "No Signal / Neutral";
 
             if (rsi <= 26) {
                 signal = "BUY";
                 modeClass = "buy-mode";
-                statusText = "Oversold Confluence Confirmed";
+                statusText = "BUY Signal Confirmed";
+                bodyTag.classList.add('mode-green');
             } else if (rsi >= 74) {
                 signal = "SELL";
                 modeClass = "sell-mode";
-                statusText = "Overbought Rejection Confirmed";
+                statusText = "SELL Signal Confirmed";
+                bodyTag.classList.add('mode-red');
+            } else {
+                statusText = "Wait State Maintained";
             }
 
             terminalBoard.className = `terminal-board ${modeClass}`;
             signalText.textContent = signal;
             statusVal.textContent = statusText;
 
-            // Now start the trade duration countdown timer
+            // Start trade duration timer countdown
             let tradeDuration = parseInt(timeframeSelect.value);
             countdownTitle.textContent = "Trade Active (Duration Left)";
             countdownVal.textContent = tradeDuration + "s";
@@ -370,9 +421,10 @@
                     countdownVal.textContent = tradeDuration + "s";
                 } else {
                     clearInterval(tradeInterval);
-                    countdownTitle.textContent = "Status";
-                    countdownVal.textContent = "Trade Finished. Tap Button.";
-                    triggerBtn.disabled = false; // Re-enable button for next manual tap
+                    countdownTitle.textContent = "System Status";
+                    countdownVal.textContent = "Ready for Next Tap";
+                    bodyTag.className = ""; // Reset body background colors
+                    triggerBtn.disabled = false; // Re-enable button
                 }
             }, 1000);
         }
