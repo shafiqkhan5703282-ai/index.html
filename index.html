@@ -3,413 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Pro Terminal - High-Frequency Signals</title>
+    <title>Real-Time Signal Scanner Bot</title>
     <style>
-        :root {
-            --bg-color: #0b0e11;
-            --card-bg: #151922;
-            --text-color: #eaecef;
-            --accent-buy: #0ecb81;
-            --accent-sell: #f6465d;
-            --accent-wait: #ffffff;
-            --accent-orange: #ff9f43;
-            --accent-orange-hover: #ff7f11;
-            --border-color: #2b313a;
-        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
+            background-color: #2c221e; /* Light brown board theme */
+            color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            text-align: center;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            transition: background-color 0.3s ease;
         }
-
-        /* Screen blinking global states */
-        body.blink-green {
-            animation: screenBlinkGreen 0.3s infinite alternate;
-        }
-        body.blink-red {
-            animation: screenBlinkRed 0.3s infinite alternate;
-        }
-        body.mode-green {
-            background-color: rgba(14, 203, 129, 0.08);
-        }
-        body.mode-red {
-            background-color: rgba(246, 70, 93, 0.08);
-        }
-
-        @keyframes screenBlinkGreen {
-            from { background-color: #0b0e11; }
-            to { background-color: rgba(14, 203, 129, 0.3); }
-        }
-        @keyframes screenBlinkRed {
-            from { background-color: #0b0e11; }
-            to { background-color: rgba(246, 70, 93, 0.3); }
-        }
-
-        .container {
-            width: 100%;
-            max-width: 680px;
-        }
-        header {
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        h1 { margin: 0; font-size: 1.8rem; color: #fff; letter-spacing: 0.8px; }
-        
-        .control-panel {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-            background: var(--card-bg);
-            padding: 18px;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .control-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #848e9c;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        select {
-            width: 100%;
-            padding: 11px;
-            background: #0b0e11;
-            color: #fff;
-            border: 1px solid var(--border-color);
+        .card {
+            background: #3b2f2d;
             border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 20px;
+            max-width: 400px;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .signal-box {
+            font-size: 24px;
             font-weight: bold;
-        }
-
-        /* Light Orange Action Button */
-        .action-btn {
-            width: 100%;
-            background: linear-gradient(135deg, var(--accent-orange), var(--accent-orange-hover));
-            color: #0b0e11;
-            font-size: 1.3rem;
-            font-weight: 900;
-            padding: 18px;
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 20px rgba(255, 159, 67, 0.35);
-            transition: all 0.25s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 159, 67, 0.55);
-            background: linear-gradient(135deg, #ffaf5c, #ff8c2b);
-        }
-        .action-btn:disabled {
-            background: #2b313a;
-            color: #848e9c;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        /* Sleek Dynamic Terminal Board */
-        .terminal-board {
-            background-color: var(--card-bg);
-            border: 3px solid var(--border-color);
-            border-radius: 18px;
-            padding: 35px 25px;
-            text-align: center;
-            transition: all 0.35s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .terminal-board.buy-mode {
-            background-color: rgba(14, 203, 129, 0.16);
-            border-color: var(--accent-buy);
-            box-shadow: 0 0 45px rgba(14, 203, 129, 0.35);
-        }
-        .terminal-board.sell-mode {
-            background-color: rgba(246, 70, 93, 0.16);
-            border-color: var(--accent-sell);
-            box-shadow: 0 0 45px rgba(246, 70, 93, 0.35);
-        }
-        .terminal-board.wait-mode {
-            background-color: rgba(255, 255, 255, 0.02);
-            border-color: var(--border-color);
-        }
-
-        .pair-badge {
-            font-size: 1.25rem;
-            color: #848e9c;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .signal-display {
-            font-size: 3.8rem;
-            font-weight: 900;
             margin: 15px 0;
-            letter-spacing: 2px;
+            padding: 10px;
+            border-radius: 5px;
         }
-        .buy-mode .signal-display { color: var(--accent-buy); }
-        .sell-mode .signal-display { color: var(--accent-sell); }
-        .wait-mode .signal-display { color: var(--accent-wait); }
-
-        .metrics-grid {
-            margin: 25px 0;
-            background: rgba(0,0,0,0.25);
-            border-radius: 12px;
-            padding: 18px;
-            border: 1px solid var(--border-color);
-        }
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 12px 0;
-            font-size: 1.1rem;
-        }
-        .metric-row span { color: #848e9c; }
-        .metric-row strong { color: #fff; }
-
-        .countdown-container {
-            margin-top: 25px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 18px;
-        }
-        .countdown-label {
-            font-size: 0.95rem;
-            color: #848e9c;
-            margin-bottom: 6px;
-        }
-        .countdown-number {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: var(--accent-orange);
-        }
-        .countdown-number.urgent {
+        .call { background-color: #2e7d32; color: white; }
+        .put { background-color: #c62828; color: white; }
+        .neutral { background-color: #555; color: white; }
+        
+        button {
+            background-color: #ff8c00; /* Light orange button */
             color: #fff;
-            animation: pulse 0.4s infinite alternate;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
         }
-
-        @keyframes pulse {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0.5; transform: scale(1.04); }
-        }
+        button:hover { background-color: #e07b00; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>Arsii-74 Bot Terminal</h1>
-        </header>
-
-        <!-- Controls: All Pairs & Timeframes -->
-        <div class="control-panel">
-            <div class="control-group">
-                <label for="pair-select">Asset / Pair Selection</label>
-                <select id="pair-select">
-                    <optgroup label="Standard Forex Pairs">
-                        <option value="EUR/USD">EUR/USD</option>
-                        <option value="GBP/USD">GBP/USD</option>
-                        <option value="AUD/USD">AUD/USD</option>
-                        <option value="USD/JPY">USD/JPY</option>
-                        <option value="USD/CAD">USD/CAD</option>
-                        <option value="EUR/GBP">EUR/GBP</option>
-                    </optgroup>
-                    <optgroup label="OTC Forex Pairs">
-                        <option value="EUR/USD (OTC)">EUR/USD (OTC)</option>
-                        <option value="GBP/USD (OTC)">GBP/USD (OTC)</option>
-                        <option value="AUD/USD (OTC)">AUD/USD (OTC)</option>
-                        <option value="USD/JPY (OTC)">USD/JPY (OTC)</option>
-                        <option value="USD/CHF (OTC)">USD/CHF (OTC)</option>
-                        <option value="EUR/GBP (OTC)">EUR/GBP (OTC)</option>
-                        <option value="EUR/JPY (OTC)">EUR/JPY (OTC)</option>
-                        <option value="GBP/JPY (OTC)">GBP/JPY (OTC)</option>
-                        <option value="AUD/CAD (OTC)">AUD/CAD (OTC)</option>
-                        <option value="NZD/USD (OTC)">NZD/USD (OTC)</option>
-                        <option value="USD/CAD (OTC)">USD/CAD (OTC)</option>
-                    </optgroup>
-                    <optgroup label="OTC Crypto & Commodities">
-                        <option value="BTC/USD (OTC)">BTC/USD (OTC)</option>
-                        <option value="ETH/USD (OTC)">ETH/USD (OTC)</option>
-                        <option value="LTC/USD (OTC)">LTC/USD (OTC)</option>
-                        <option value="XRP/USD (OTC)">XRP/USD (OTC)</option>
-                        <option value="Gold (OTC)">Gold (OTC)</option>
-                        <option value="Silver (OTC)">Silver (OTC)</option>
-                    </optgroup>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="timeframe-select">Trade Duration</label>
-                <select id="timeframe-select">
-                    <optgroup label="Short Seconds">
-                        <option value="3">3 Seconds</option>
-                        <option value="5" selected>5 Seconds</option>
-                        <option value="10">10 Seconds</option>
-                        <option value="15">15 Seconds</option>
-                        <option value="30">30 Seconds</option>
-                        <option value="45">45 Seconds</option>
-                    </optgroup>
-                    <optgroup label="Minutes & Hours">
-                        <option value="60">1 Minute</option>
-                        <option value="300">5 Minutes</option>
-                        <option value="900">15 Minutes</option>
-                        <option value="1800">30 Minutes</option>
-                        <option value="3600">1 Hour</option>
-                    </optgroup>
-                </select>
-            </div>
-        </div>
-
-        <!-- Light Orange Big Action Button -->
-        <button class="action-btn" id="trigger-btn">Generate Signal</button>
-
-        <!-- Sleek Dynamic Terminal Board -->
-        <div class="terminal-board wait-mode" id="terminal-board">
-            <div class="pair-badge" id="display-pair">EUR/USD</div>
-            <div class="signal-display" id="signal-text">WAIT</div>
-            
-            <div class="metrics-grid">
-                <div class="metric-row"><span>Simulated Price:</span> <strong id="price-val">1.08500</strong></div>
-                <div class="metric-row"><span>Trend Velocity:</span> <strong id="rsi-val">+0.12%</strong></div>
-                <div class="metric-row"><span>Status:</span> <strong id="status-val">Ready for Tap</strong></div>
-            </div>
-
-            <div class="countdown-container">
-                <div class="countdown-label" id="countdown-title">System Status</div>
-                <div class="countdown-number" id="countdown-val">Idle</div>
-            </div>
-        </div>
+    <div class="card">
+        <h2>Live Signal Scanner</h2>
+        <div id="pair-display">Asset: EUR/USD | Timeframe: 1M</div>
+        
+        <div id="signal-state" class="signal-box neutral">WAITING...</div>
+        
+        <p>Price: <span id="price-val">--</span></p>
+        <p>RSI (14): <span id="rsi-val">--</span></p>
+        
+        <button onclick="toggleAudio()">Toggle Sound Alert</button>
     </div>
 
     <script>
-        const bodyTag = document.body;
-        const pairSelect = document.getElementById('pair-select');
-        const timeframeSelect = document.getElementById('timeframe-select');
-        const triggerBtn = document.getElementById('trigger-btn');
-        const terminalBoard = document.getElementById('terminal-board');
-        const displayPair = document.getElementById('display-pair');
-        const signalText = document.getElementById('signal-text');
-        const priceVal = document.getElementById('price-val');
-        const rsiVal = document.getElementById('rsi-val');
-        const statusVal = document.getElementById('status-val');
-        const countdownVal = document.getElementById('countdown-val');
-        const countdownTitle = document.getElementById('countdown-title');
+        let audioEnabled = false;
+        const ws = new WebSocket("ws://localhost:8000/ws/signals");
 
-        const priceHistory = {};
-
-        function getHistory(pair) {
-            if (!priceHistory[pair]) {
-                let base = pair.includes("BTC") ? 65000.0 : (pair.includes("Gold") ? 2300.0 : 1.08500);
-                priceHistory[pair] = Array.from({length: 15}, () => base += (Math.random() - 0.5) * (base * 0.0002));
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            document.getElementById("price-val").innerText = data.price;
+            document.getElementById("rsi-val").innerText = data.rsi;
+            
+            const signalBox = document.getElementById("signal-state");
+            signalBox.innerText = data.signal;
+            
+            signalBox.className = "signal-box";
+            if (data.signal.includes("CALL")) {
+                signalBox.classList.add("call");
+                if (audioEnabled) playBeep();
+            } else if (data.signal.includes("PUT")) {
+                signalBox.classList.add("put");
+                if (audioEnabled) playBeep();
+            } else {
+                signalBox.classList.add("neutral");
             }
-            return priceHistory[pair];
+        };
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            alert("Audio Alerts: " + (audioEnabled ? "ON" : "OFF"));
         }
 
-        triggerBtn.addEventListener('click', () => {
-            triggerBtn.disabled = true;
-            displayPair.textContent = pairSelect.value;
-            
-            // Clear previous states
-            bodyTag.className = "";
-            terminalBoard.className = "terminal-board wait-mode";
-            signalText.textContent = "SCANNING";
-            statusVal.textContent = "Evaluating Order Flow...";
-            countdownTitle.textContent = "4-Second Analysis";
-            countdownVal.classList.add('urgent');
-
-            // Pre-calculate trend direction to set preliminary blink color
-            const currentPair = pairSelect.value;
-            const history = getHistory(currentPair);
-            const lastPrice = history[history.length - 1];
-            const multiplier = currentPair.includes("BTC") ? 15.0 : (currentPair.includes("Gold") ? 1.5 : 0.001);
-            
-            // Random momentum bias to guarantee a BUY or SELL outcome
-            const randomDirection = Math.random() >= 0.5 ? 1 : -1;
-            const newPrice = +(lastPrice + randomDirection * Math.random() * multiplier).toFixed(currentPair.includes("BTC") ? 2 : 5);
-            
-            history.push(newPrice);
-            history.shift();
-
-            // Set blink style matching the upcoming signal direction
-            if (randomDirection > 0) {
-                bodyTag.classList.add('blink-green');
-            } else {
-                bodyTag.classList.add('blink-red');
-            }
-
-            // Strictly 4 seconds countdown loop
-            let count = 4;
-            countdownVal.textContent = count + "s";
-
-            const countdownInterval = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    countdownVal.textContent = count + "s";
-                } else {
-                    clearInterval(countdownInterval);
-                    countdownVal.classList.remove('urgent');
-                    bodyTag.className = ""; // clear blinking
-
-                    // Lock in final active signal (BUY or SELL)
-                    finalizeSignal(newPrice, randomDirection);
-                }
-            }, 1000);
-        });
-
-        function finalizeSignal(newPrice, direction) {
-            priceVal.textContent = newPrice;
-            rsiVal.textContent = (direction > 0 ? "+" : "") + (direction * (Math.random() * 0.4 + 0.1)).toFixed(2) + "%";
-
-            let signal = "";
-            let modeClass = "";
-            let statusText = "";
-
-            if (direction > 0) {
-                signal = "BUY";
-                modeClass = "buy-mode";
-                statusText = "BUY Momentum Confirmed";
-                bodyTag.classList.add('mode-green');
-            } else {
-                signal = "SELL";
-                modeClass = "sell-mode";
-                statusText = "SELL Momentum Confirmed";
-                bodyTag.classList.add('mode-red');
-            }
-
-            terminalBoard.className = `terminal-board ${modeClass}`;
-            signalText.textContent = signal;
-            statusVal.textContent = statusText;
-
-            // Start full trade duration countdown timer based on user selection
-            let durationLeft = parseInt(timeframeSelect.value);
-            countdownTitle.textContent = "Trade Active (Duration Left)";
-            countdownVal.textContent = durationLeft + "s";
-
-            const timerInterval = setInterval(() => {
-                durationLeft--;
-                if (durationLeft > 0) {
-                    countdownVal.textContent = durationLeft + "s";
-                } else {
-                    clearInterval(timerInterval);
-                    countdownTitle.textContent = "System Status";
-                    countdownVal.textContent = "Ready for Next Tap";
-                    bodyTag.className = ""; // Reset body background colors
-                    triggerBtn.disabled = false; // Re-enable button immediately
-                }
-            }, 1000);
+        function playBeep() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = "sine";
+            osc.frequency.value = 587.33; // D5 note
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
         }
     </script>
 </body>
