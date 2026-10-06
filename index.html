@@ -67,13 +67,14 @@
         .badge.buy { background-color: rgba(8, 153, 129, 0.2); color: var(--accent-buy); }
         .badge.sell { background-color: rgba(242, 54, 69, 0.2); color: var(--accent-sell); }
         .badge.neutral { background-color: rgba(255, 152, 0, 0.2); color: var(--accent-warning); }
-        .timer {
+        .timer-box {
             margin-top: 10px;
-            font-size: 0.75rem;
-            color: #848e9c;
+            font-size: 0.8rem;
+            color: var(--accent-warning);
             text-align: center;
             border-top: 1px solid var(--border-color);
             padding-top: 6px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -81,7 +82,7 @@
 
     <header>
         <h1>Arsii-74 Dashboard</h1>
-        <div class="status-box">Status: <span id="connection-status" style="color: var(--accent-buy);">Active (15s)</span></div>
+        <div class="status-box">Status: <span id="connection-status" style="color: var(--accent-buy);">Active (15s Sync)</span></div>
     </header>
 
     <div class="grid" id="dashboard-grid">
@@ -91,47 +92,68 @@
     <script>
         const grid = document.getElementById('dashboard-grid');
         
-        // Comprehensive list including standard and OTC market pairs
         const PAIRS = [
             "EUR/USD", "GBP/USD", "AUD/USD", "USD/JPY", 
             "EUR/GBP", "USD/CAD", "EUR/USD (OTC)", "GBP/USD (OTC)", 
             "AUD/CAD (OTC)", "NZD/USD (OTC)", "BTC/USD (OTC)", "ETH/USD (OTC)"
         ];
 
+        // Cache generated values per pair so they stay stable during the 15s window
+        const pairData = {};
+        PAIRS.forEach(pair => {
+            pairData[pair] = generatePairState();
+        });
+
+        function generatePairState() {
+            const base_price = (Math.random() * (1.15 - 1.0) + 1.0).toFixed(5);
+            const rsi = (Math.random() * (85 - 15) + 15).toFixed(2);
+            const trend = rsi > 50 ? "BULLISH" : "BEARISH";
+            
+            let signal = "NEUTRAL";
+            if (rsi < 32) signal = "BUY";
+            else if (rsi > 68) signal = "SELL";
+
+            return { base_price, rsi, trend, signal };
+        }
+
         function updateDashboard() {
+            // Calculate exact 15-second interval countdown based on system time
+            const epochSeconds = Math.floor(Date.now() / 1000);
+            const countdownSeconds = 15 - (epochSeconds % 15);
+
+            // Refresh market states precisely when the 15s cycle flips over
+            if (countdownSeconds === 15) {
+                PAIRS.forEach(pair => {
+                    pairData[pair] = generatePairState();
+                });
+            }
+
             grid.innerHTML = '';
 
             PAIRS.forEach(pair => {
-                const base_price = (Math.random() * (1.15 - 1.0) + 1.0).toFixed(5);
-                const rsi = (Math.random() * (85 - 15) + 15).toFixed(2);
-                const trend = rsi > 50 ? "BULLISH" : "BEARISH";
+                const data = pairData[pair];
                 
-                // Logic framework for signal triggers
-                let signal = "NEUTRAL";
-                if (rsi < 32) signal = "BUY";
-                else if (rsi > 68) signal = "SELL";
-
                 let badgeClass = 'neutral';
-                if (signal === 'BUY') badgeClass = 'buy';
-                if (signal === 'SELL') badgeClass = 'sell';
+                if (data.signal === 'BUY') badgeClass = 'buy';
+                if (data.signal === 'SELL') badgeClass = 'sell';
 
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="pair-title">
                         <span>${pair}</span>
-                        <span class="badge ${badgeClass}">${signal}</span>
+                        <span class="badge ${badgeClass}">${data.signal}</span>
                     </div>
-                    <div class="metric"><span>Price:</span> <strong>${base_price}</strong></div>
-                    <div class="metric"><span>RSI Indicator:</span> <strong>${rsi}</strong></div>
-                    <div class="metric"><span>Market Trend:</span> <strong>${trend}</strong></div>
-                    <div class="timer">Timeframe Window: <strong>15s Sync</strong></div>
+                    <div class="metric"><span>Price:</span> <strong>${data.base_price}</strong></div>
+                    <div class="metric"><span>RSI Indicator:</span> <strong>${data.rsi}</strong></div>
+                    <div class="metric"><span>Market Trend:</span> <strong>${data.trend}</strong></div>
+                    <div class="timer-box">Next Candle Reset in: <span>${countdownSeconds}s</span></div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // Refresh stream loop every 1 second
+        // Run every second to update the countdown smoothly
         setInterval(updateDashboard, 1000);
         updateDashboard();
     </script>
