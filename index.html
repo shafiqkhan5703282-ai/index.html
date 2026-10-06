@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Professional Terminal - Full Timeframe Suite</title>
+    <title>Arsii-74 Manual Trigger Terminal</title>
     <style>
         :root {
             --bg-color: #0b0e11;
@@ -62,6 +62,34 @@
             border-radius: 6px;
             font-size: 0.9rem;
             font-weight: bold;
+        }
+
+        /* Big Action Button */
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f0b90b, #d49a00);
+            color: #0b0e11;
+            font-size: 1.2rem;
+            font-weight: 900;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(240, 185, 11, 0.3);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 185, 11, 0.5);
+        }
+        .action-btn:disabled {
+            background: #2b313a;
+            color: #848e9c;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
 
         /* Big Dynamic Professional Board */
@@ -156,7 +184,7 @@
             <h1>Arsii-74 Professional Terminal</h1>
         </header>
 
-        <!-- Controls: All Pairs & Precise Timeframes -->
+        <!-- Controls: All Pairs & Timeframes -->
         <div class="control-panel">
             <div class="control-group">
                 <label for="pair-select">Asset / Pair Selection</label>
@@ -168,8 +196,6 @@
                         <option value="USD/JPY">USD/JPY</option>
                         <option value="USD/CAD">USD/CAD</option>
                         <option value="EUR/GBP">EUR/GBP</option>
-                        <option value="AUD/CAD">AUD/CAD</option>
-                        <option value="NZD/USD">NZD/USD</option>
                     </optgroup>
                     <optgroup label="OTC Forex Pairs">
                         <option value="EUR/USD (OTC)">EUR/USD (OTC)</option>
@@ -195,7 +221,7 @@
                 </select>
             </div>
             <div class="control-group">
-                <label for="timeframe-select">Timeframe (3s to 1hr)</label>
+                <label for="timeframe-select">Trade Duration</label>
                 <select id="timeframe-select">
                     <optgroup label="Short Seconds">
                         <option value="3">3 Seconds</option>
@@ -209,12 +235,14 @@
                         <option value="60">1 Minute</option>
                         <option value="300">5 Minutes</option>
                         <option value="900">15 Minutes</option>
-                        <option value="1800">30 Minutes</option>
                         <option value="3600">1 Hour</option>
                     </optgroup>
                 </select>
             </div>
         </div>
+
+        <!-- Big Manual Trigger Button -->
+        <button class="action-btn" id="trigger-btn">Generate Next Signal</button>
 
         <!-- Big Dynamic Terminal Board -->
         <div class="terminal-board wait-mode" id="terminal-board">
@@ -224,12 +252,12 @@
             <div class="metrics-grid">
                 <div class="metric-row"><span>Simulated Price:</span> <strong id="price-val">1.08500</strong></div>
                 <div class="metric-row"><span>RSI Momentum (14):</span> <strong id="rsi-val">50.00</strong></div>
-                <div class="metric-row"><span>Filter Status:</span> <strong id="status-val">Scanning Market...</strong></div>
+                <div class="metric-row"><span>Status:</span> <strong id="status-val">Ready for Manual Tap</strong></div>
             </div>
 
             <div class="countdown-container">
-                <div class="countdown-label" id="countdown-title">Next Cycle Reset</div>
-                <div class="countdown-number" id="countdown-val">5s</div>
+                <div class="countdown-label" id="countdown-title">Status</div>
+                <div class="countdown-number" id="countdown-val">Idle</div>
             </div>
         </div>
     </div>
@@ -237,6 +265,7 @@
     <script>
         const pairSelect = document.getElementById('pair-select');
         const timeframeSelect = document.getElementById('timeframe-select');
+        const triggerBtn = document.getElementById('trigger-btn');
         const terminalBoard = document.getElementById('terminal-board');
         const displayPair = document.getElementById('display-pair');
         const signalText = document.getElementById('signal-text');
@@ -246,8 +275,6 @@
         const countdownVal = document.getElementById('countdown-val');
         const countdownTitle = document.getElementById('countdown-title');
 
-        let selectedTimeframe = 5;
-        let currentTimeLeft = 5;
         const priceHistory = {};
 
         function getHistory(pair) {
@@ -273,15 +300,35 @@
             return +(100 - (100 / (1 + rs))).toFixed(2);
         }
 
-        timeframeSelect.addEventListener('change', (e) => {
-            selectedTimeframe = parseInt(e.target.value);
-            currentTimeLeft = selectedTimeframe;
+        triggerBtn.addEventListener('click', () => {
+            triggerBtn.disabled = true;
+            let count = 5;
+            displayPair.textContent = pairSelect.value;
+            
+            // Reset board to waiting state during countdown
+            terminalBoard.className = "terminal-board wait-mode";
+            signalText.textContent = "WAIT";
+            statusVal.textContent = "Counting down entry...";
+            countdownTitle.textContent = "Entry Countdown";
+            countdownVal.classList.add('urgent');
+            countdownVal.textContent = count + "s";
+
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownVal.textContent = count + "s";
+                } else {
+                    clearInterval(countdownInterval);
+                    countdownVal.classList.remove('urgent');
+                    
+                    // Generate Signal after countdown hits 1s
+                    generateSignalResult();
+                }
+            }, 1000);
         });
 
-        function evaluateMarket() {
+        function generateSignalResult() {
             const currentPair = pairSelect.value;
-            displayPair.textContent = currentPair;
-
             const history = getHistory(currentPair);
             const lastPrice = history[history.length - 1];
             const multiplier = currentPair.includes("BTC") ? 10.0 : (currentPair.includes("Gold") ? 1.0 : 0.0008);
@@ -296,46 +343,39 @@
 
             let signal = "WAIT";
             let modeClass = "wait-mode";
-            let statusText = "Neutral / Filtering Noise";
+            let statusText = "Neutral / No Strong Confluence";
 
-            // Strict mathematical thresholds for signal output
             if (rsi <= 26) {
                 signal = "BUY";
                 modeClass = "buy-mode";
-                statusText = "Strong Oversold Confluence";
+                statusText = "Oversold Confluence Confirmed";
             } else if (rsi >= 74) {
                 signal = "SELL";
                 modeClass = "sell-mode";
-                statusText = "Strong Overbought Rejection";
+                statusText = "Overbought Rejection Confirmed";
             }
 
             terminalBoard.className = `terminal-board ${modeClass}`;
             signalText.textContent = signal;
             statusVal.textContent = statusText;
+
+            // Now start the trade duration countdown timer
+            let tradeDuration = parseInt(timeframeSelect.value);
+            countdownTitle.textContent = "Trade Active (Duration Left)";
+            countdownVal.textContent = tradeDuration + "s";
+
+            const tradeInterval = setInterval(() => {
+                tradeDuration--;
+                if (tradeDuration > 0) {
+                    countdownVal.textContent = tradeDuration + "s";
+                } else {
+                    clearInterval(tradeInterval);
+                    countdownTitle.textContent = "Status";
+                    countdownVal.textContent = "Trade Finished. Tap Button.";
+                    triggerBtn.disabled = false; // Re-enable button for next manual tap
+                }
+            }, 1000);
         }
-
-        // Ticker loop
-        setInterval(() => {
-            currentTimeLeft--;
-
-            // Highlight the final urgent countdown sequence when 4 seconds or less remain
-            if (currentTimeLeft <= 4 && currentTimeLeft > 0) {
-                countdownTitle.textContent = "Execution Window (Entry Countdown)";
-                countdownVal.classList.add('urgent');
-            } else {
-                countdownTitle.textContent = "Next Cycle Reset";
-                countdownVal.classList.remove('urgent');
-            }
-
-            if (currentTimeLeft <= 0) {
-                currentTimeLeft = selectedTimeframe;
-                evaluateMarket();
-            }
-
-            countdownVal.textContent = currentTimeLeft + "s";
-        }, 1000);
-
-        evaluateMarket();
     </script>
 </body>
 </html>
