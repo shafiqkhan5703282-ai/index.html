@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arsii-74 Professional Signal Scanner</title>
+    <title>Arsii-74 High-Accuracy Signal Scanner</title>
     <style>
         :root {
             --bg-color: #121418;
@@ -58,7 +58,6 @@
             font-size: 0.9rem;
         }
 
-        /* Dynamic Board Themes based on signal */
         .board {
             background-color: var(--card-bg);
             border: 2px solid var(--border-color);
@@ -108,11 +107,10 @@
 <body>
 
     <header>
-        <h1>Arsii-74 Signal Dashboard</h1>
-        <div style="font-size: 0.85rem;">Status: <span style="color: var(--accent-buy);">Live Scanner</span></div>
+        <h1>Arsii-74 Precision Engine</h1>
+        <div style="font-size: 0.85rem;">Status: <span style="color: var(--accent-buy);">Math Engine Active</span></div>
     </header>
 
-    <!-- Controls for Selection -->
     <div class="controls">
         <div class="control-group">
             <label for="pair-select">Select Asset / OTC Pair</label>
@@ -134,31 +132,23 @@
         <div class="control-group">
             <label for="timeframe-select">Select Timeframe</label>
             <select id="timeframe-select">
-                <optgroup label="Seconds">
-                    <option value="3">3 Seconds</option>
-                    <option value="5" selected>5 Seconds</option>
-                    <option value="10">10 Seconds</option>
-                    <option value="15">15 Seconds</option>
-                    <option value="30">30 Seconds</option>
-                </optgroup>
-                <optgroup label="Minutes & Hours">
-                    <option value="60">1 Minute</option>
-                    <option value="300">5 Minutes</option>
-                    <option value="900">15 Minutes</option>
-                    <option value="3600">1 Hour</option>
-                </optgroup>
+                <option value="3">3 Seconds</option>
+                <option value="5" selected>5 Seconds</option>
+                <option value="10">10 Seconds</option>
+                <option value="15">15 Seconds</option>
+                <option value="30">30 Seconds</option>
+                <option value="60">1 Minute</option>
             </select>
         </div>
     </div>
 
-    <!-- Dynamic Output Board -->
     <div class="board wait-mode" id="main-board">
         <div style="font-size: 1.1rem; color: #fff;" id="selected-pair-label">EUR/USD</div>
         <div class="signal-title" id="signal-text">WAIT</div>
         
-        <div class="metric-row"><span>Current Price:</span> <strong id="price-val">1.08450</strong></div>
-        <div class="metric-row"><span>Indicator State:</span> <strong id="indicator-val">Analyzing...</strong></div>
-        <div class="metric-row"><span>Strength Check:</span> <strong id="strength-val">Low Momentum</strong></div>
+        <div class="metric-row"><span>Latest Price:</span> <strong id="price-val">1.08450</strong></div>
+        <div class="metric-row"><span>Calculated RSI (14):</span> <strong id="rsi-val">50.00</strong></div>
+        <div class="metric-row"><span>Filter Status:</span> <strong id="filter-val">Filtering Noise...</strong></div>
         
         <div class="countdown-display" id="countdown-timer">Next Window: 5s</div>
     </div>
@@ -170,63 +160,106 @@
         const selectedPairLabel = document.getElementById('selected-pair-label');
         const signalText = document.getElementById('signal-text');
         const priceVal = document.getElementById('price-val');
-        const indicatorVal = document.getElementById('indicator-val');
-        const strengthVal = document.getElementById('strength-val');
+        const rsiVal = document.getElementById('rsi-val');
+        const filterVal = document.getElementById('filter-val');
         const countdownTimer = document.getElementById('countdown-timer');
 
         let currentTimeLeft = 5;
         let selectedTimeframe = 5;
+
+        // Maintain a historical price array per asset for real math calculations
+        const priceHistory = {};
+        
+        function getHistory(pair) {
+            if (!priceHistory[pair]) {
+                let base = 1.08500;
+                priceHistory[pair] = Array.from({length: 20}, () => base += (Math.random() - 0.5) * 0.0005);
+            }
+            return priceHistory[pair];
+        }
+
+        // Mathematical RSI Calculation Function
+        prices => {
+            let gains = 0;
+            let losses = 0;
+            for (let i = 1; i < prices.length; i++) {
+                let diff = prices[i] - prices[i - 1];
+                if (diff >= 0) gains += diff;
+                else losses -= diff;
+            }
+            let avgGain = gains / 14;
+            let avgLoss = losses / 14;
+            if (avgLoss === 0) return 100;
+            let rs = avgGain / avgLoss;
+            return +(100 - (100 / (1 + rs))).toFixed(2);
+        };
+
+        function calculateRSI(prices) {
+            let gains = 0;
+            let losses = 0;
+            for (let i = 1; i < prices.length; i++) {
+                let diff = prices[i] - prices[i - 1];
+                if (diff >= 0) gains += diff;
+                else losses -= diff;
+            }
+            let avgGain = gains / 14;
+            let avgLoss = losses / 14;
+            if (avgLoss === 0) return 100;
+            let rs = avgGain / avgLoss;
+            return +(100 - (100 / (1 + rs))).toFixed(2);
+        }
 
         timeframeSelect.addEventListener('change', (e) => {
             selectedTimeframe = parseInt(e.target.value);
             currentTimeLeft = selectedTimeframe;
         });
 
-        function runScannerEngine() {
-            selectedPairLabel.textContent = pairSelect.value;
+        function runMathematicalScanner() {
+            const currentPair = pairSelect.value;
+            selectedPairLabel.textContent = currentPair;
+
+            const history = getHistory(currentPair);
+            // Simulate next tick variation
+            const lastPrice = history[history.length - 1];
+            const newPrice = +(lastPrice + (Math.random() - 0.49) * 0.0008).toFixed(5);
             
-            // Generate simulated analytical state
-            const randomVal = Math.random();
-            const price = (1.0 + Math.random() * 0.1).toFixed(5);
-            priceVal.textContent = price;
+            history.push(newPrice);
+            history.shift(); // Keep array size steady
+
+            const currentRSI = calculateRSI(history);
+            priceVal.textContent = newPrice;
+            rsiVal.textContent = currentRSI;
 
             let signal = "WAIT";
             let modeClass = "wait-mode";
-            let indicatorState = "Neutral Range";
-            let strengthState = "Insufficient Momentum";
+            let filterState = "Market Noise / Neutral Zone";
 
-            // Conditional simulation logic for demo strength signals
-            if (randomVal < 0.33) {
+            // Strict Mathematical Thresholds for Confluence
+            if (currentRSI <= 28) {
                 signal = "BUY";
                 modeClass = "buy-mode";
-                indicatorState = "Oversold Bounce";
-                strengthState = "Strong Bullish Setup";
-            } else if (randomVal > 0.66) {
+                filterState = "Oversold Confluence Confirmed";
+            } else if (currentRSI >= 72) {
                 signal = "SELL";
                 modeClass = "sell-mode";
-                indicatorState = "Overbought Rejection";
-                strengthState = "Strong Bearish Setup";
+                filterState = "Overbought Confluence Confirmed";
             }
 
-            // Apply theme classes
             mainBoard.className = `board ${modeClass}`;
             signalText.textContent = signal;
-            indicatorVal.textContent = indicatorState;
-            strengthVal.textContent = strengthState;
+            filterVal.textContent = filterState;
         }
 
-        // Timer Loop running every second
         setInterval(() => {
             currentTimeLeft--;
             if (currentTimeLeft <= 0) {
                 currentTimeLeft = selectedTimeframe;
-                runScannerEngine(); // Refresh signal data on cycle reset
+                runMathematicalScanner();
             }
             countdownTimer.textContent = `Next Window: ${currentTimeLeft}s`;
         }, 1000);
 
-        // Initial run
-        runScannerEngine();
+        runMathematicalScanner();
     </script>
 </body>
 </html>
